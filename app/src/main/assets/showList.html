@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>List TODO</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <!-- Wide card with share menu button -->
+    <style>
+        .demo-card-wide.mdl-card {
+            width: 90%;
+            margin: auto;
+            margin-bottom: 10px;
+        }
+
+        .demo-card-wide>.mdl-card__menu {
+            color: #ccc;
+        }
+    </style>
+</head>
+
+<body background="#ccc">
+
+
+    <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <!-- Title -->
+                <span class="mdl-layout-title">Apps</span>
+                <!-- Add spacer, to align navigation to the right -->
+                <div class="mdl-layout-spacer"></div>
+                <!-- Navigation. We hide it in small screens. -->
+
+            </div>
+        </header>
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title">Apps</span>
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" href="showList.html">List TODO</a>
+                <a class="mdl-navigation__link" href="addform.html">Add TODO</a>
+
+
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                <center>
+                    <br>
+                    <!-- MDL Spinner Component -->
+                    <div class="mdl-spinner mdl-js-spinner is-active" id="load"></div>
+
+                </center>
+                <div id="content">
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase-database.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script>
+      
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyA9BSbu70Pw70vQfr2HrH2hkstzhut-AQY",
+            authDomain: "ctntodo.firebaseapp.com",
+            databaseURL: "https://ctntodo.firebaseio.com",
+            projectId: "ctntodo",
+            storageBucket: "ctntodo.appspot.com",
+            messagingSenderId: "972294586515",
+            appId: "1:972294586515:web:afaef5df4549bf01394d66",
+            measurementId: "G-69KMZX0Z6V"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+
+        var data = firebase.database().ref()
+        var getData = data.child("/todolist")
+        getData.once("value", function (snapshot) {
+            var listHeder = '<ul class="demo-list-item mdl-list">';
+            $("#load").show()
+            var count_chk = 0
+            snapshot.forEach(function (child) {
+                count_chk += 1
+                listHeder += ' <div class="demo-card-wide mdl-card mdl-shadow--2dp">\
+                                <div class="mdl-card__title">\
+                                    <h2 class="mdl-card__title-text">'+ child.val().todo + '</h2>\
+                                </div>\
+                                <div class="mdl-card__supporting-text">\
+                                    '+ child.val().description + '\
+                                </div>\
+                                <div class="mdl-card__menu">\
+                                    <a href="addform.html?contact_id='+child.key+'">\
+                                    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">\
+                                    <i class="material-icons">edit</i>\
+                                    </button></a>\
+                                    <button onclick="delete_data(\''+child.key+'\')" class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">\
+                                    <i class="material-icons">delete</i>\
+                                    </button>\
+                                </div>\
+                                </div>'
+
+            })
+
+            if(count_chk == 0){
+                $("#content").html("<center><br><br>Data is Emptry.<a href='addform.html'>Add Here.</a></center>")
+            }else{
+                $("#content").html(listHeder + "<ul>")
+            }
+            
+            $("#load").hide()
+
+        })
+
+        function delete_data(contact_id){
+            
+            if(confirm("คุณต้องการลบข้อมูลนี้จริงหรือไม่ ?")){
+                firebase.database().ref('todolist/' + contact_id).remove( function (error) {
+                            if (error) {
+                                alert("delete error")
+                            } else {
+
+                                window.location.href = "showList.html"
+                            }
+                        });
+            }
+            
+           
+        }
+    </script>
+
+
+</body>
+
+</html>

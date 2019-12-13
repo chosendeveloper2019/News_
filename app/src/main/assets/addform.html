@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Add</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+</head>
+
+<body>
+    <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <!-- Title -->
+                <span class="mdl-layout-title">Apps</span>
+                <!-- Add spacer, to align navigation to the right -->
+                <div class="mdl-layout-spacer"></div>
+                <!-- Navigation. We hide it in small screens. -->
+
+            </div>
+        </header>
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title">Apps</span>
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" href="showList.html">List TODO</a>
+                <a class="mdl-navigation__link" href="addform.html">Add TODO</a>
+
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                <!-- MDL Spinner Component -->
+                <center>
+                    <br>
+                    <div class="mdl-spinner mdl-js-spinner is-active" id="load"></div>
+                </center>
+                <div id="content">
+
+                    <br>
+
+                    <div class="mdl-textfield mdl-js-textfield" style="width:80%;margin-left:10%; margin-right:20%;">
+
+                        <input class="mdl-textfield__input" type="text" id="todo" placeholder="Todo" required>
+
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield" style="width:80%;margin-left:10%; margin-right:20%;">
+                        <input class="mdl-textfield__input" type="text" id="description" placeholder="Description"
+                            required>
+                        <!-- <label class="mdl-textfield__label" for="sample1">คำอธิบาย</label> -->
+                    </div>
+                    <!-- Accent-colored raised button -->
+                    <center><br>
+                        <!-- Accent-colored raised button with ripple -->
+                        <button
+                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                            id="btnSave">
+                            บันทึกข้อมูล
+                        </button>
+                    </center>
+
+
+
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-analytics.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase-database.js"></script>
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyA9BSbu70Pw70vQfr2HrH2hkstzhut-AQY",
+            authDomain: "ctntodo.firebaseapp.com",
+            databaseURL: "https://ctntodo.firebaseio.com",
+            projectId: "ctntodo",
+            storageBucket: "ctntodo.appspot.com",
+            messagingSenderId: "972294586515",
+            appId: "1:972294586515:web:afaef5df4549bf01394d66",
+            measurementId: "G-69KMZX0Z6V"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+
+        $(document).ready(function () {
+            var contact_id = getUrlParameter('contact_id');
+            console.log(contact_id)
+            if (contact_id != undefined) {
+                $("#load").show()
+                firebase.database().ref("/todolist/" + contact_id).once('value').then(function (datasnap) {
+                    console.log(datasnap.val());
+                    $("#todo").val(datasnap.val().todo)
+                    $("#description").val(datasnap.val().description)
+                    $("#load").hide()
+                })
+
+            }else{
+                $("#load").hide()
+            }
+
+            // 
+            $("#btnSave").on("click", function () {
+                if (contact_id != undefined) {
+                    var todo = $("#todo").val()
+                    var description = $("#description").val()
+                    if (todo != "" && description != "") {
+                        $("#load").show()
+                        firebase.database().ref("/todolist/"+contact_id).set({
+                            todo: todo,
+                            description: description
+                        }, function (error) {
+                            if (error) {
+                                alert("push error")
+                            } else {
+
+                                window.location.href = "showList.html"
+                            }
+                        })
+
+                } else {
+                    
+                }
+                }else{
+                    var todo = $("#todo").val()
+                    var description = $("#description").val()
+                    if (todo != "" && description != "") {
+                        $("#load").show()
+                        firebase.database().ref("/todolist").push({
+                            todo: todo,
+                            description: description
+                        }, function (error) {
+                            if (error) {
+                                alert("push error")
+                            } else {
+
+                                window.location.href = "showList.html"
+                            }
+                        })
+
+                    } 
+                }
+              })  
+        
+        })
+
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                }
+            }
+        };
+
+    </script>
+
+</body>
+
+</html>
